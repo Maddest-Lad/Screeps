@@ -1,4 +1,4 @@
-var roleTemplate = {
+const roleTemplate = {
 
     /** @param {Creep} creep **/
     run: function (creep) {
