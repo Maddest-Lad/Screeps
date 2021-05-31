@@ -2,9 +2,11 @@ const utils = require("utils")
 const roomConstruction = require("room.construction")
 const roomDefense = require("room.defense")
 const roomSpawn = require("room.spawn")
+const roomMemory = require("room.memory")
 const roleDrone = require("role.drone")
 const roleRanged = require("role.ranged")
 const roleHauler = require("role.hauler")
+const roleMiner = require("role.miner")
 
 module.exports.loop = function () {
 
@@ -18,18 +20,11 @@ module.exports.loop = function () {
             // Do we own the room?
             if (room && room.controller && room.controller.my) {
 
-                // Room Data For Memory
-                room.memory.level = room.controller.level;
-                room.memory.extensions = _.filter(room.find(FIND_STRUCTURES), (structure) => structure.structureType === STRUCTURE_EXTENSION);
-
-
-
-                // Room Modules
-                roomSpawn.run(room);
-                roomConstruction.run(room);
-                //roomDefense.run(room);
+                // Room Modules (Only Run Once Every Once-In-A-While For Performance)
+                runEveryXTicks(roomSpawn, room, 10);
+                runEveryXTicks(roomConstruction, room, 100);
+                runEveryXTicks(roomMemory, room, 1);
             }
-
         }
     );
 
@@ -54,15 +49,19 @@ module.exports.loop = function () {
                 break;
 
             case "miner":
-                //roleMiner.run(creep);
+                roleMiner.run(creep);
                 break;
 
             default:
                 roleDrone.run(creep);
         }
     });
+}
 
-
+function runEveryXTicks(func, room, tickFrequency) {
+    if (Game.time % tickFrequency === 0) {
+        func.run(room);
+    }
 }
 
 
