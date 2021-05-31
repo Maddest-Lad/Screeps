@@ -1,20 +1,44 @@
 const roomConstruction = {
 
     run: function (room) {
-        if (room.memory.spawnPlanned) {
-            if (room.find(FIND_FLAGS).length === 2 && room.find(FIND_MY_CONSTRUCTION_SITES).length < 100) {
-                this.planRoads(room);
-            } else if (room.find(FIND_FLAGS).length === 1) {
-                this.cancelConstruction(room);
+
+        // This Will Be Ran Every 10th Tick To Check For An Upgrade,
+        // And Then Ran Every 500 Ticks In Case Something Was Missed
+        if (room.memory.level !== room.controller.level || Game.time % 10 === 0) {
+
+            switch (room.memory.level) {
+
+                case 1:
+                    this.tierOne(room);
+                    break;
+
+                case 2:
+                    this.tierTwo(room);
+                    break;
+
+                default:
+                    console.log("[CONSTRUCTION] Warning Room Level [" + room.memory.level + "] Unsupported")
             }
-        } else {
-            this.planSpawn(room);
-            room.memory.spawnPlanned = true;
+        }
+
+        if (room.find(FIND_FLAGS).length === 1) {
+            this.cancelConstruction(room);
         }
     },
 
-    // Call on
-    planSpawn: function (room) {
+    tierOne: function (room) {
+        // Do Nothing Really
+    },
+
+    tierTwo: function (room) {
+        if (room.memory.extensions.length <= 4) {
+            this.planSpawnExtensions(room);
+        } else {
+            this.planRoads(room);
+        }
+    },
+
+    planSpawnExtensions: function (room) {
         console.log("Placing Extension Sites")
         const spawnPos = Game.spawns["Spawn1"].pos;
         const x = spawnPos.x, y = spawnPos.y;
@@ -24,16 +48,17 @@ const roomConstruction = {
         room.createConstructionSite(x - 2, y, STRUCTURE_EXTENSION);
         room.createConstructionSite(x, y + 2, STRUCTURE_EXTENSION);
         room.createConstructionSite(x, y - 2, STRUCTURE_EXTENSION);
+        room.createConstructionSite(x - 2, y - 2, STRUCTURE_EXTENSION);
     },
 
     planRoads: function (room) {
         console.log("Placing Road Sites")
-
-        // Room Unsafe Code
+        
         const roadEndpoints = room.find(FIND_SOURCES).concat(room.controller);
 
         for (let path = 0; path < roadEndpoints.length; path++) {
-            let pathToEndpoint = Game.spawns["Spawn1"].pos.findPathTo(roadEndpoints[path].pos);
+            // Room Unsafe Code
+            let pathToEndpoint = Game.spawns["Spawn1"].pos.findPathTo(roadEndpoints[path].pos, {ignoreCreeps: true});
             for (let step = 0; step < pathToEndpoint.length; step++) {
                 room.createConstructionSite(pathToEndpoint[step].x, pathToEndpoint[step].y, STRUCTURE_ROAD);
             }
@@ -45,11 +70,9 @@ const roomConstruction = {
         _.forEach(room.find(FIND_MY_CONSTRUCTION_SITES), function (constructionSite) {
             constructionSite.remove();
         });
-
-        room.memory.spawnPlanned = false;
     }
 
 
-};
+}
 
 module.exports = roomConstruction;
