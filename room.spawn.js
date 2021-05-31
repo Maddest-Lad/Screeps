@@ -3,7 +3,6 @@ const utils = require("utils");
 const roomSpawn = {
 
     run: function (room) {
-
         switch (room.memory.level) {
 
             case 1:
@@ -15,15 +14,18 @@ const roomSpawn = {
                 break;
 
             default:
-                console.log("Warning Room Level [" + room.memory.level + "] Unsupported")
+                console.log("[SPAWN] Warning Room Level [" + room.memory.level + "] Unsupported")
         }
     },
 
     spawnCreep: function (role, room) {
-        const maxEnergy = room.memory.extensions * 50 + 300;
-        if (utils.getRoleCost(role) < maxEnergy) {
+        // console.log("Energy Cost: " + utils.getRoleCost(role));
+        // console.log("Energy Available: " + room.energyAvailable);
+
+        if (utils.getRoleCost(role) <= room.energyAvailable) {
+            console.log("Spawning " + role + " in room: " + room.name);
             const newName = role + Game.time + "T:" + room.memory.level;
-            Game.spawns["Spawn1"].spawnCreep(utils.roleMap.get(role), newName, {memory: {role: role}});
+            Game.spawns["Spawn1"].spawnCreep(utils.roleMap[role], newName, {memory: {role: role}});
         }
     },
 
@@ -45,13 +47,17 @@ const roomSpawn = {
 
         // Spawn Creeps
         if (miners < threshold) {
-            this.spawnCreep("miner", room);
-        } else if (builders < threshold) {
-            this.spawnCreep("builder", room);
-        } else if (haulers < threshold) {
+            //this.spawnCreep("miner", room);
+        }
+        if (builders < threshold) {
+            //this.spawnCreep("builder", room);
+        }
+
+        if (haulers < threshold) {
             this.spawnCreep("hauler", room);
-        } else if (upgradedDrones < 4) {
-            this.spawnCreep("upgraded_drone", room);
+        }
+        if (upgradedDrones < threshold) {
+            this.spawnCreep("drone", room);
         }
     }
 }
