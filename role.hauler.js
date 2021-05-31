@@ -1,3 +1,5 @@
+const roleDrone = require("role.drone")
+
 const roleHauler = {
 
     /** @param {Creep} creep **/
@@ -10,27 +12,25 @@ const roleHauler = {
         }
 
         if (creep.memory.full) {
-            const depositTarget = creep.pos.findClosestByPath(STRUCTURE_CONTAINER, {
-                filter: (structure) => structure.store.getFreeCapacity(RESOURCE_ENERGY) > creep.store.getUsedCapacity(RESOURCE_ENERGY) &&
-                    (creep.memory.role === "drone" || creep.memory.role === "miner")
-            });
+            const depositTarget = creep.pos.findClosestByPath(creep.room.find([STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_SPAWN]));
+
+            //console.log(creep.room.find([STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_SPAWN]));
 
             if (creep.transfer(depositTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(depositTarget)
             }
 
         } else {
-            const withdrawTarget = creep.pos.findClosestByPath(FIND_CREEPS, {
-                filter: (creep) => creep.store.getUsedCapacity(RESOURCE_ENERGY) > 50 &&
-                    (creep.memory.role === "drone" || creep.memory.role === "miner")
+            const withdrawTarget = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
+                filter: (creep) => creep.store.getUsedCapacity(RESOURCE_ENERGY) >= 50 &&
+                    creep.memory.role === "miner"
             });
 
-            if (creep.withdraw(withdrawTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            if (creep.pos.getRangeTo(withdrawTarget) > 1) {
                 creep.moveTo(withdrawTarget)
             }
         }
     },
-
 };
 
 module.exports = roleHauler;
