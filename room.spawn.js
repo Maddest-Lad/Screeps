@@ -25,39 +25,47 @@ const roomSpawn = {
         if (utils.getRoleCost(role) <= room.energyAvailable) {
             console.log("Spawning " + role + " in room: " + room.name);
             const newName = role + Game.time + "T:" + room.memory.level;
-            Game.spawns["Spawn1"].spawnCreep(utils.roleMap[role], newName, {memory: {role: role}});
+            Game.spawns["Spawn1"].spawnCreep(utils.roleMap[role], newName, {
+                memory: {
+                    role: role,
+                    owned: false,
+                    source: null
+                }
+            });
         }
     },
 
     tierOne: function (room) {
         const drones = _.filter(Game.creeps, (creep) => creep.memory.role === "drone").length;
         if (drones < 8) {
-            spawnCreep("drone", room);
+            this.spawnCreep("drone", room);
         }
     },
 
     tierTwo: function (room) {
-        const threshold = 4;
+
+        const threshold = 3 //room.memory.sources.length * 2;
 
         // Count Existing
-        const miners = _.filter(room.creeps, (creep) => creep.memory.role === "miner").length;
-        const builders = _.filter(room.creeps, (creep) => creep.memory.role === "builder").length;
-        const haulers = _.filter(room.creeps, (creep) => creep.memory.role === "hauler").length;
-        const upgradedDrones = _.filter(room.creeps, (creep) => creep.memory.role === "upgraded_drone").length;
+        const roomCreeps = room.find(FIND_MY_CREEPS);
+        const miners = _.filter(roomCreeps, (creep) => creep.memory.role === "miner").length;
+        const builders = _.filter(roomCreeps, (creep) => creep.memory.role === "builder").length;
+        const haulers = _.filter(roomCreeps, (creep) => creep.memory.role === "hauler").length;
+
+        console.log(miners + " miners, " + haulers + " haulers, " + builders + " builders");
 
         // Spawn Creeps
-        if (miners < threshold) {
-            //this.spawnCreep("miner", room);
-        }
-        if (builders < threshold) {
-            //this.spawnCreep("builder", room);
+        if (miners < 3) {
+            this.spawnCreep("miner", room);
         }
 
-        if (haulers < threshold) {
+        if (haulers < 6) {
             this.spawnCreep("hauler", room);
         }
-        if (upgradedDrones < threshold) {
-            this.spawnCreep("drone", room);
+
+        if (builders < 3) {
+            this.spawnCreep("builder", room);
+
         }
     }
 }
