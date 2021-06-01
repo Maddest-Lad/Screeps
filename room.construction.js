@@ -27,7 +27,7 @@ const roomConstruction = {
     },
 
     tierOne: function (room) {
-        // Do Nothing Really
+        this.cancelConstruction(room);
     },
 
     tierTwo: function (room) {
@@ -53,7 +53,7 @@ const roomConstruction = {
 
     planRoads: function (room) {
         console.log("Placing Road Sites")
-        
+
         const roadEndpoints = room.find(FIND_SOURCES).concat(room.controller);
 
         for (let path = 0; path < roadEndpoints.length; path++) {
