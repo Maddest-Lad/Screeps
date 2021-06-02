@@ -21,7 +21,7 @@ const roles = [
 // For Reference: Tier 2 Max Energy = 550 (With 5 Extensions)
 const drone = [WORK, MOVE, CARRY]; // 200
 const upgraded_drone = [WORK, WORK, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY] // 500
-const hauler = [MOVE, CARRY, MOVE, CARRY]; // 200
+const hauler = [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY]; // 300
 const builder = [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE] // 500
 const miner = [WORK, WORK, WORK, WORK, MOVE, CARRY]; // 500
 const ranged = [MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH]; // 500
@@ -63,8 +63,8 @@ class harvestController {
 
     constructor(source) {
         this.source = source.id;
-        this.miners = [];
-        this.haulers = [];
+        this.miners = new Set();
+        this.haulers = new Set();
     }
 }
 

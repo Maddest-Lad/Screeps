@@ -12,56 +12,30 @@ const roleBuilder = {
 
         if (creep.memory.full) {
 
-            // Manage Source Control
-            if (!creep.memory.source) {
-                // Repairs?
-                const repair = creep.pos.findClosestByRange(creep.room.find(FIND_STRUCTURES, {filter: (i) => i.hits < i.hitsMax}));
-                if (repair) {
-                    creep.memory.source = repair.id;
-                } else {
-                    const build = creep.pos.findClosestByRange(creep.room.memory.constructionSites);
+            // Refill, Build, Repair & Upgrade
+            const refillPriorityTarget = creep.pos.findClosestByRange(creep.room.find(FIND_STRUCTURES, {filter: (i) => (i.structureType === STRUCTURE_EXTENSION || i.structureType === STRUCTURE_SPAWN) && i.store.getFreeCapacity(RESOURCE_ENERGY) > 0}));
+            const refillStandardTarget = creep.pos.findClosestByRange(creep.room.find(FIND_STRUCTURES, {filter: (i) => (i.structureType === STRUCTURE_CONTAINER || i.structureType === STRUCTURE_TOWER) && i.store.getFreeCapacity(RESOURCE_ENERGY) > 0}));
+            const repairTarget = creep.pos.findClosestByRange(creep.room.find(FIND_STRUCTURES, {filter: (i) => (i.hits / i.hitsMax) < 0.25}));
+            const buildTarget = creep.pos.findClosestByRange(creep.room.find(FIND_CONSTRUCTION_SITES));
 
-                    if (build) {
-                        creep.memory.source = build.id;
-                    } else {
-                        creep.memory.source = creep.room.controller.id;
-                    }
+            if (refillPriorityTarget) {
+                if (creep.transfer(refillPriorityTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(refillPriorityTarget, {visualizePathStyle: {stroke: "#00FF00"}});
                 }
+            } else if (repairTarget) {
+                if (creep.repair(repairTarget) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(repairTarget, {visualizePathStyle: {stroke: "#00FF00"}});
+                }
+            } else if (buildTarget) {
+                if (creep.build(buildTarget) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(buildTarget, {visualizePathStyle: {stroke: "#FFFF00"}});
+                }
+            } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: "#0000FF"}});
             } else {
-                const target = Game.getObjectById(creep.memory.source);
-
-                if (target) {
-
-                    if (target.hasOwnProperty("progress")) {
-                        if (target.progress === target.progressTotal) {
-                            creep.memory.source = null;
-                        }
-                    } else if (target.hasOwnProperty("hits")) {
-                        if (target.hits === target.hitsMax) {
-                            creep.memory.source = null;
-                        }
-                    }
-                } else {
-                    creep.memory.source = null;
+                if (creep.transfer(refillStandardTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(refillStandardTarget, {visualizePathStyle: {stroke: '#007FFF'}});
                 }
-            }
-
-            const target = Game.getObjectById(creep.memory.source);
-
-            if (creep.upgradeController(target) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, {visualizePathStyle: {stroke: "#FF00FF"}, reusePath: 3});
-            }
-
-            if (creep.repair(target) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, {visualizePathStyle: {stroke: "#FF00FF"}, reusePath: 3});
-            }
-
-            if (creep.build(target) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, {visualizePathStyle: {stroke: "#FF00FF"}, reusePath: 3});
-            }
-
-            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-                creep.memory.full = false;
             }
 
         } else {

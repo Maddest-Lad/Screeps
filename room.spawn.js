@@ -14,13 +14,14 @@ const roomSpawn = {
                 break;
 
             default:
+                this.tierTwo(room);
                 console.log("[SPAWN] Warning Room Level [" + room.memory.level + "] Unsupported")
         }
     },
 
     spawnCreep: function (role, room) {
-        // console.log("Energy Cost: " + utils.getRoleCost(role));
-        // console.log("Energy Available: " + room.energyAvailable);
+        console.log("Energy Cost: " + utils.getRoleCost(role));
+        console.log("Energy Available: " + room.energyAvailable);
 
         if (utils.getRoleCost(role) <= room.energyAvailable) {
             console.log("Spawning " + role + " in room: " + room.name);
@@ -59,7 +60,7 @@ const roomSpawn = {
             this.spawnCreep("miner", room);
         }
 
-        if (haulers < 6) {
+        if (haulers < 4) {
             this.spawnCreep("hauler", room);
         }
 

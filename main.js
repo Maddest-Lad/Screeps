@@ -26,17 +26,20 @@ module.exports.loop = function () {
             // Do we own the room?
             if (room && room.controller && room.controller.my) {
 
+
                 // Room Modules (Only Run Once Every Once-In-A-While For Performance)
                 runEveryXTicks(roomMemory, room, 25);
-                runEveryXTicks(roomHarvestController, room, 10)
-                runEveryXTicks(roomSpawn, room, 10);
-                runEveryXTicks(roomConstruction, room, 100);
+                runEveryXTicks(roomHarvestController, room, 1)
+                runEveryXTicks(roomSpawn, room, 9);
+                runEveryXTicks(roomConstruction, room, 250);
             }
         }
     );
 
     // Run Creep Code
     _.forEach(Game.creeps, function (creep) {
+
+
 
         switch (creep.memory.role) {
 
